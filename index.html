@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" data-color-scheme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTEM Competitor Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header__content">
+                    <div class="header__title">
+                        <h1>CTEM Competitor Intelligence</h1>
+                        <p>Continuous Threat Exposure Management Monitoring</p>
+                    </div>
+                    <div class="header__status">
+                        <div class="status status--success">
+                            <span class="status__indicator"></span>
+                            Monitoring Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="container">
+                <div class="nav__tabs">
+                    <button class="nav__tab nav__tab--active" data-section="dashboard">
+                        <span class="nav__tab-icon">📊</span>
+                        Dashboard
+                    </button>
+                    <button class="nav__tab" data-section="competitors">
+                        <span class="nav__tab-icon">🏢</span>
+                        Competitors
+                    </button>
+                    <button class="nav__tab" data-section="news-config">
+                        <span class="nav__tab-icon">📰</span>
+                        News Sources
+                    </button>
+                    <button class="nav__tab" data-section="slack-config">
+                        <span class="nav__tab-icon">💬</span>
+                        Slack Integration
+                    </button>
+                    <button class="nav__tab" data-section="news-preview">
+                        <span class="nav__tab-icon">👁️</span>
+                        News Preview
+                    </button>
+                    <button class="nav__tab" data-section="settings">
+                        <span class="nav__tab-icon">⚙️</span>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="section section--active">
+                    <div class="section__header">
+                        <h2>Competitor Dashboard</h2>
+                        <p>Overview of monitored competitors and recent activity</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card__value">10</div>
+                            <div class="stat-card__label">Active Competitors</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card__value">173</div>
+                            <div class="stat-card__label">News Articles Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card__value">5</div>
+                            <div class="stat-card__label">News Sources</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card__value">92%</div>
+                            <div class="stat-card__label">Relevance Score</div>
+                        </div>
+                    </div>
+
+                    <div class="competitors-grid" id="competitorsGrid">
+                        <!-- Competitor cards will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Competitors Section -->
+                <section id="competitors" class="section">
+                    <div class="section__header">
+                        <h2>Competitor Management</h2>
+                        <p>Manage which competitors to monitor and configure settings</p>
+                    </div>
+
+                    <div class="competitor-categories">
+                        <div class="category-section">
+                            <h3>Purpose-built CTEM</h3>
+                            <div class="competitor-list" id="purposeBuiltList">
+                                <!-- Purpose-built competitors will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="category-section">
+                            <h3>Rebranded CTEM</h3>
+                            <div class="competitor-list" id="rebrandedList">
+                                <!-- Rebranded competitors will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- News Configuration Section -->
+                <section id="news-config" class="section">
+                    <div class="section__header">
+                        <h2>News Sources Configuration</h2>
+                        <p>Configure news sources and filtering keywords</p>
+                    </div>
+
+                    <div class="config-grid">
+                        <div class="config-card">
+                            <h3>News Sources</h3>
+                            <div class="source-list" id="sourcesList">
+                                <!-- News sources will be populated by JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="config-card">
+                            <h3>Keywords & Filters</h3>
+                            <div class="keyword-section">
+                                <div class="form-group">
+                                    <label class="form-label">Add New Keyword</label>
+                                    <div class="input-group">
+                                        <input type="text" id="newKeyword" class="form-control" placeholder="Enter keyword...">
+                                        <button class="btn btn--primary" onclick="addKeyword()">Add</button>
+                                    </div>
+                                </div>
+                                <div class="keywords-list" id="keywordsList">
+                                    <!-- Keywords will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Slack Configuration Section -->
+                <section id="slack-config" class="section">
+                    <div class="section__header">
+                        <h2>Slack Integration</h2>
+                        <p>Configure Slack notifications for competitor news</p>
+                    </div>
+
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label class="form-label">Webhook URL</label>
+                            <input type="url" id="webhookUrl" class="form-control" placeholder="https://hooks.slack.com/services/...">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Channel</label>
+                            <input type="text" id="slackChannel" class="form-control" placeholder="#competitor-intelligence">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notification Frequency</label>
+                            <select id="notificationFreq" class="form-control">
+                                <option value="real-time">Real-time</option>
+                                <option value="hourly">Hourly Digest</option>
+                                <option value="daily">Daily Digest</option>
+                                <option value="weekly">Weekly Summary</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Message Format</label>
+                            <select id="messageFormat" class="form-control">
+                                <option value="detailed">Detailed</option>
+                                <option value="summary">Summary Only</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn--primary" onclick="saveSlackConfig()">Save Configuration</button>
+                            <button class="btn btn--outline" onclick="testSlackConnection()">Test Connection</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- News Preview Section -->
+                <section id="news-preview" class="section">
+                    <div class="section__header">
+                        <h2>News Preview</h2>
+                        <p>Preview how news articles will appear in Slack notifications</p>
+                    </div>
+
+                    <div class="preview-controls">
+                        <div class="form-group">
+                            <label class="form-label">Filter by Competitor</label>
+                            <select id="competitorFilter" class="form-control">
+                                <option value="">All Competitors</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Minimum Relevance Score</label>
+                            <select id="relevanceFilter" class="form-control">
+                                <option value="0">All Articles</option>
+                                <option value="80">80%+</option>
+                                <option value="90">90%+</option>
+                                <option value="95">95%+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="news-feed" id="newsFeed">
+                        <!-- News articles will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settings" class="section">
+                    <div class="section__header">
+                        <h2>Settings</h2>
+                        <p>Global configuration and preferences</p>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="settings-card">
+                            <h3>API Configuration</h3>
+                            <div class="form-group">
+                                <label class="form-label">NewsAPI Key</label>
+                                <input type="password" id="newsApiKey" class="form-control" placeholder="Enter API key...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Update Interval (minutes)</label>
+                                <select id="updateInterval" class="form-control">
+                                    <option value="15">15 minutes</option>
+                                    <option value="30">30 minutes</option>
+                                    <option value="60">1 hour</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-card">
+                            <h3>Export/Import</h3>
+                            <div class="form-actions">
+                                <button class="btn btn--outline" onclick="exportConfig()">Export Configuration</button>
+                                <button class="btn btn--outline" onclick="importConfig()">Import Configuration</button>
+                            </div>
+                            <input type="file" id="configFile" style="display: none;" accept=".json">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
