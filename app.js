@@ -774,3 +774,187 @@ document.addEventListener('DOMContentLoaded',()=>{
   newsSourceList = (appData.newsources || []).slice();
   renderNewsSourceList();
 });
+
+
+// Updated app.js with requested features integrated
+
+// Application Data (initial competitors, news sources, keywords, slackConfig)
+const appData = {
+  competitors: [
+    { id: 1, name: "Cymulate", description: "Security validation platform with exposure management", website: "https://cymulate.com", domain: "cymulate.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T10:30:00Z", newsCount: 15, category: "Purpose-built CTEM" },
+    { id: 2, name: "Strobes Security", description: "Risk-based vulnerability management platform", website: "https://strobes.co", domain: "strobes.co", subdomains: [], status: "active", lastUpdate: "2025-09-05T09:15:00Z", newsCount: 12, category: "Purpose-built CTEM" },
+    { id: 3, name: "Outpost24", description: "Comprehensive exposure management solutions", website: "https://outpost24.com", domain: "outpost24.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T08:45:00Z", newsCount: 8, category: "Purpose-built CTEM" },
+    { id: 4, name: "XM Cyber", description: "Attack path modeling and validation platform", website: "https://xmcyber.com", domain: "xmcyber.com", subdomains: [], status: "active", lastUpdate: "2025-09-04T16:20:00Z", newsCount: 18, category: "Purpose-built CTEM" },
+    { id: 5, name: "Safe Security", description: "Autonomous CTEM platform powered by CyberAGI", website: "https://safe.security", domain: "safe.security", subdomains: [], status: "active", lastUpdate: "2025-09-05T11:10:00Z", newsCount: 22, category: "Purpose-built CTEM" },
+    { id: 6, name: "Nagomi Security", description: "Combines exposure insight, defense testing, and simulations", website: "https://nagomisecurity.com", domain: "nagomisecurity.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T07:30:00Z", newsCount: 6, category: "Purpose-built CTEM" },
+    { id: 7, name: "Tenable", description: "Exposure Management Suite with vulnerability scanning", website: "https://tenable.com", domain: "tenable.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T12:00:00Z", newsCount: 28, category: "Rebranded CTEM" },
+    { id: 8, name: "CrowdStrike", description: "EDR-based external asset scanning and exposure detection", website: "https://crowdstrike.com", domain: "crowdstrike.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T10:45:00Z", newsCount: 31, category: "Rebranded CTEM" },
+    { id: 9, name: "SentinelOne", description: "Singularity Platform with exposure management capabilities", website: "https://sentinelone.com", domain: "sentinelone.com", subdomains: [], status: "active", lastUpdate: "2025-09-05T09:30:00Z", newsCount: 19, category: "Rebranded CTEM" },
+    { id: 10, name: "Rapid7", description: "Risk scoring and vulnerability management platform", website: "https://rapid7.com", domain: "rapid7.com", subdomains: [], status: "active", lastUpdate: "2025-09-04T14:15:00Z", newsCount: 14, category: "Rebranded CTEM" }
+  ],
+  newsources: [
+    { name: "Security Week", type: "RSS", url: "https://feeds.feedburner.com/securityweek", enabled: true },
+    { name: "Dark Reading", type: "RSS", url: "https://www.darkreading.com/rss.xml", enabled: true },
+    { name: "InfoSecurity Magazine", type: "RSS", url: "https://www.infosecurity-magazine.com/rss/news/", enabled: true },
+    { name: "The Hacker News", type: "RSS", url: "https://feeds.feedburner.com/TheHackersNews", enabled: true },
+    { name: "TechCrunch Security", type: "API", url: "newsapi.org", enabled: true }
+  ],
+  keywords: [
+    "CTEM", "continuous threat exposure management", "exposure management", "threat exposure", "attack surface management",
+    "vulnerability management", "security validation", "attack path analysis", "exposure assessment",
+    "threat validation", "security posture", "cyber resilience", "risk prioritization"
+  ],
+  slackConfig: {
+    webhookUrl: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+    channel: "#competitor-intelligence",
+    frequency: "real-time",
+    messageFormat: "detailed"
+  }
+};
+
+// State variables
+let competitorList = [...appData.competitors];
+let newsSourceList = [...appData.newsources];
+let slackSendMode = appData.slackConfig.frequency || 'real-time';
+let filteredNews = [];
+
+// Helper: Fetch and parse RSS feed with real live articles via CORS proxy
+async function fetchRSS(feedUrl) {
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(feedUrl)}`;
+  try {
+    const response = await fetch(proxyUrl);
+    const data = await response.json();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, "text/xml");
+    return [...xml.querySelectorAll("item")].map(item => ({
+      title: item.querySelector("title")?.textContent || "No title",
+      link: item.querySelector("link")?.textContent || "#",
+      pubDate: item.querySelector("pubDate")?.textContent || null,
+      description: item.querySelector("description")?.textContent || "",
+      source: xml.querySelector("channel > title")?.textContent || feedUrl
+    }));
+  } catch (error) {
+    console.error("Failed to load RSS feed:", feedUrl, error);
+    return [];
+  }
+}
+
+// Fetch all enabled news sources and aggregate articles
+async function loadAllNews() {
+  let allArticles = [];
+  for (const source of newsSourceList.filter(src => src.enabled)) {
+    if (source.type === "RSS") {
+      const articles = await fetchRSS(source.url);
+      allArticles.push(...articles);
+    }
+    // Add other source types handling here if needed (e.g., API)
+  }
+  filteredNews = allArticles;
+  renderNewsPreview();
+}
+
+// Competitor management UI rendering
+function renderCompetitorsUI() {
+  const container = document.getElementById("competitorList");
+  if (!container) return;
+  container.innerHTML = competitorList.map((c, i) => `
+    <div class="competitor-item">
+      <div><strong>${c.name}</strong> (${c.domain})</div>
+      <div><button onclick="removeCompetitor(${i})">Remove</button></div>
+    </div>`).join("");
+}
+
+// Remove competitor by index
+window.removeCompetitor = function(index) {
+  competitorList.splice(index, 1);
+  renderCompetitorsUI();
+};
+
+// Add competitor form event handler
+document.getElementById("addCompetitorForm").onsubmit = function(event) {
+  event.preventDefault();
+  const name = event.target['comp-name'].value.trim();
+  const description = event.target['comp-desc'].value.trim();
+  const website = event.target['comp-website'].value.trim();
+  const domain = event.target['comp-domain'].value.trim();
+
+  if (competitorList.some(c => c.domain === domain)) {
+    alert("Domain already monitored!");
+    return;
+  }
+  competitorList.push({ name, description, website, domain, subdomains: [] });
+  renderCompetitorsUI();
+  event.target.reset();
+};
+
+// News source management rendering
+function renderNewsSourceList() {
+  const container = document.getElementById("newsSourceList");
+  if (!container) return;
+  container.innerHTML = newsSourceList.map((src, i) => `
+    <div class="news-source-item">
+      <div><strong>${src.name}</strong> - <a href="${src.url}" target="_blank" rel="noopener noreferrer">${src.url}</a></div>
+      <div><button onclick="removeNewsSource(${i})">Remove</button></div>
+    </div>`).join("");
+}
+
+// Remove news source by index
+window.removeNewsSource = function(index) {
+  newsSourceList.splice(index, 1);
+  renderNewsSourceList();
+};
+
+// Add news source form event handler
+document.getElementById("addFeedForm").onsubmit = function(event) {
+  event.preventDefault();
+  const name = event.target['feed-name'].value.trim();
+  const url = event.target['feed-url'].value.trim();
+  if (!/^https?:\/\//.test(url)) {
+    alert("Invalid URL");
+    return;
+  }
+  if (newsSourceList.some(s => s.url === url)) {
+    alert("Feed already added!");
+    return;
+  }
+  newsSourceList.push({ name, url, type: "RSS", enabled: true });
+  renderNewsSourceList();
+  event.target.reset();
+};
+
+// Slack frequency radio buttons handling
+document.querySelectorAll('input[name="slack-frequency"]').forEach(radio => {
+  radio.addEventListener('change', (event) => {
+    slackSendMode = event.target.value;
+    appData.slackConfig.frequency = slackSendMode;
+    // Save or update your config persistence here if needed
+  });
+});
+
+// Render news preview (simple example)
+function renderNewsPreview() {
+  const container = document.getElementById('newsPreview');
+  if (!container) return;
+
+  if (!filteredNews.length) {
+    container.innerHTML = '<p>No news articles found.</p>';
+    return;
+  }
+
+  container.innerHTML = filteredNews.slice(0, 20).map(article => `
+    <article class="news-article">
+      <h3><a href="${article.link}" target="_blank" rel="noopener noreferrer">${article.title}</a></h3>
+      <p><em>${article.source} - ${new Date(article.pubDate).toLocaleDateString() || ''}</em></p>
+      <p>${article.description || ''}</p>
+    </article>
+  `).join('');
+}
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  renderCompetitorsUI();
+  renderNewsSourceList();
+  loadAllNews();
+});
+
+
