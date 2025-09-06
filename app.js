@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 
-// Updated app.js with requested features integrated
+// Updated app.js with requested features integrated  -> p.2 additions 
 
 // Application Data (initial competitors, news sources, keywords, slackConfig)
 const appData = {
